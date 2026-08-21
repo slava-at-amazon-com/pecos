@@ -96,7 +96,7 @@ install_requires = numpy_requires + [
     'scikit-learn>=0.24.1',
     'torch>=2.0; python_version>="3.9"',
     'sentencepiece>=0.1.86,!=0.1.92', # 0.1.92 results in error for transformers
-    'transformers>=4.31.0; python_version>="3.9"',  # the minimal version supporting py3.9
+    'transformers>=4.31.0,<4.49; python_version>="3.9"',  # <4.49: xtransformer imports transformers internals removed across 4.49-4.53 (AdamW, *_DOCSTRING, SequenceSummary)
     'peft>=0.11.0; python_version>="3.9"',
     'datasets>=2.19.1; python_version>="3.9"',
 ]

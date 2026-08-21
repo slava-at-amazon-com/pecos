@@ -10,7 +10,7 @@ jobs:
       fail-fast: false
       matrix:
         python-version: ["3.9", "3.10", "3.11", "3.12"]
-        platform: [ubuntu-20.04, ubuntu-22.04, ubuntu-22.04-arm]
+        platform: [ubuntu-22.04, ubuntu-22.04-arm]
 
     runs-on: ${{ matrix.platform }}
 
@@ -43,6 +43,13 @@ jobs:
     runs-on: ubuntu-latest
     container: amazonlinux:2
 
+    # AL2 (glibc 2.26) can't use the newest glibc-2.28 wheels; force wheels for ALL deps so pip
+    # backtracks to glibc-2.17 wheel versions instead of source-building (which fails on AL2's gcc 7.3
+    # — e.g. building numpy needs gcc>=9.3, sentencepiece needs cmake). Applies to deps only; PECOS's
+    # own `pip install --editable .` build is unaffected (verified).
+    env:
+      PIP_ONLY_BINARY: ":all:"
+
     steps:
     - uses: actions/checkout@v1
     - name: Install dependencies
@@ -53,7 +60,7 @@ jobs:
         yum install openblas-devel -y
     - name: Set up Python ${{ matrix.python-version }} via miniconda
       run: |
-        curl https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -o /tmp/miniconda.sh;
+        curl https://repo.anaconda.com/miniconda/Miniconda3-py39_23.11.0-2-Linux-x86_64.sh -o /tmp/miniconda.sh;
         bash /tmp/miniconda.sh -b -p /tmp/miniconda
         export PATH=/tmp/miniconda/bin:$PATH
         conda create -n "py${{ matrix.python-version }}" python=${{ matrix.python-version }} -y
